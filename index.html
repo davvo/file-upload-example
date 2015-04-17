@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+    <head>
+        <title>file-upload-example</title>
+    </head>
+    <body>
+        <input type="file" multiple accept="image/*" style="display:none"/>
+        <button id="openFileButton">Open file</button>
+        <script>
+            function upload(file, done) {
+                var fd = new FormData();
+                fd.append('file', file);
+                var xhr = new XMLHttpRequest();
+                xhr.upload.addEventListener("load", done);
+                xhr.open("POST", "/");
+                xhr.send(fd);
+            }
+
+            function filter(file) {
+                var types = ['image/png', 'image/jpg', 'image/jpeg'];
+                if (types.indexOf(file.type) < 0) {
+                    console.log("wrong type", file.type)
+                    return false;
+                }
+                if (file.size > 5000000) {
+                    console.log("too big", file.size);
+                    return false;
+                }
+                return true;
+            }
+
+            document.querySelector('#openFileButton').addEventListener('click', function () {
+                document.querySelector('input[type=file]').click();
+            });
+
+            document.querySelector('input[type=file]').addEventListener('change', function () {
+                var files = [].slice.call(this.files);
+                files.filter(filter).forEach(function (file) {
+                    upload(file, function () {
+                        console.log(file.name, 'uploaded');
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>
